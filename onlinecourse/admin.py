@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import User, Group
-from onlinecourse.models import Course, Lesson, Question, Choice, Submission
+from onlinecourse.models import Course, Lesson, Question, Choice, Submission, Instructor, Learner
 
 
 class QuestionInline(admin.StackedInline):
@@ -16,13 +16,13 @@ class ChoiceInline(admin.TabularInline):
 class CourseAdmin(admin.ModelAdmin):
     list_display = ('course_name', 'course_description')
     search_fields = ('course_name',)
-    inlines = []
 
 
 class LessonAdmin(admin.ModelAdmin):
-    list_display = ('lesson_title', 'lesson_content', 'course_name')
+    list_display = ('lesson_title', 'course_name')
     search_fields = ('lesson_title',)
     list_filter = ('course_name',)
+    inlines = []
 
 
 class QuestionAdmin(admin.ModelAdmin):
@@ -32,13 +32,18 @@ class QuestionAdmin(admin.ModelAdmin):
     inlines = [ChoiceInline]
 
 
-class SubmissionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'exam', 'score', 'created_at')
-    list_filter = ('exam',)
+class InstructorAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name')
+
+
+class LearnerAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name')
 
 
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Lesson, LessonAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Choice)
-admin.site.register(Submission, SubmissionAdmin)
+admin.site.register(Submission)
+admin.site.register(Instructor, InstructorAdmin)
+admin.site.register(Learner, LearnerAdmin)
