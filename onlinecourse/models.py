@@ -28,6 +28,9 @@ class Question(models.Model):
     def __str__(self):
         return self.question_text
 
+    def is_answered(self, submission):
+        return Answer.objects.filter(question=self, submission=submission).exists()
+
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, related_name='choices', on_delete=models.CASCADE)
@@ -53,7 +56,23 @@ class Submission(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.user.username + ' - ' + self.exam.course_name + ': ' + str(self.score)
+        return self.user.username + ' - ' + self.exam.course_name + ': ' + str(self.get_score())
+
+    def get_score(self):
+        total = self.exam.questions.count()
+        if total == 0:
+            return 0
+        correct_count = Answer.objects.filter(submission=self, selected_choice__correct=True).values('question').distinct().count()
+        return round((correct_count / total) * 100)
+
+
+class Answer(models.Model):
+    question = models.ForeignKey(Question, related_name='answers', on_delete=models.CASCADE)
+    selected_choice = models.ForeignKey(Choice, related_name='answers', on_delete=models.CASCADE)
+    submission = models.ForeignKey(Submission, related_name='answers', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.question.question_text + ' -> ' + self.selected_choice.choice_text
 
 
 class Instructor(models.Model):
